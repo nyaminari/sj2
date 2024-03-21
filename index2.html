@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SJnanotech 3D</title>
+</head>
+<body>
+    <canvas id="canvas" width= "1000" height="1000"></canvas>
+
+    <script type="importmap">
+        {
+            "imports": {
+              "three": "https://unpkg.com/three@0.141.0/build/three.module.js",
+              "GLTFLoader" : "https://unpkg.com/three@0.141.0/examples/jsm/loaders/GLTFLoader.js",
+              "OrbitControls": "https://cdn.jsdelivr.net/npm/three@0.141.0/examples/jsm/controls/OrbitControls.js"
+              
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'GLTFLoader';
+        import { OrbitControls } from 'OrbitControls';
+
+        const scene = new THREE.Scene();
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.querySelector('#canvas'),
+            antialias: true
+        });
+
+        renderer.outputEncodeing = THREE.sRGBEncoding;
+
+        const camera = new THREE.PerspectiveCamera(30, 1);
+        camera.position.set(0, 0, 5);
+
+        //배경
+        scene.background = new THREE.Color('black');
+
+        //조명
+        const light = new THREE.DirectionalLight(0xffffff, 1.5);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+
+        const light2 = new THREE.DirectionalLight(0xffffff, 1.5);
+        light2.position.set(-10, -5, -5);
+        scene.add(light2);
+
+
+        //3D모델
+        const loader = new GLTFLoader();
+        loader.load('assamble.glb', function (gltf) {
+            scene.add(gltf.scene);
+
+            //마우스 컨트롤
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.update();
+
+            //반응형 처리
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+                controls.update();
+            }
+            animate();
+
+            //돌아가는 효과
+            function animate(){
+                requestAnimationFrame(animate)
+                gltf.scene.rotation.y -= 0.003;
+                renderer.render(scene, camera);
+            }
+            animate();
+        });
+
+        //브라우저 
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        window.addEventListener('resize', onWindowResize);
+    </script>
+</body>
+</html>
